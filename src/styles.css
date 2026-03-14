@@ -1,0 +1,105 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  padding: 2rem;
+  transition: background-color 0.5s ease;
+  gap: 1.5rem;
+}
+
+/* Background states */
+.bg-neutral {
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+}
+
+.bg-exercise {
+  background-color: #c0392b;
+  color: #fff;
+}
+
+.bg-rest {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+/* Phase label */
+#phase-label {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Timer display */
+#timer-display {
+  font-size: clamp(5rem, 22vw, 12rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+}
+
+/* Set label */
+#set-label {
+  font-size: clamp(1rem, 3.5vw, 1.5rem);
+  opacity: 0.85;
+  min-height: 1.5em;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.controls button {
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  font-weight: 600;
+  padding: 0.8em 2em;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.1s;
+  touch-action: manipulation;
+}
+
+.bg-neutral .controls button {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.controls button:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#reset-btn {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
