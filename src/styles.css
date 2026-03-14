@@ -8,6 +8,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   -webkit-text-size-adjust: 100%;
+  background-color: #1a1a2e;
 }
 
 body {
