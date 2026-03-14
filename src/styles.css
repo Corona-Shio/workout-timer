@@ -8,7 +8,10 @@ html, body {
   height: 100%;
   overflow: hidden;
   -webkit-text-size-adjust: 100%;
-  background-color: #1a1a2e;
+}
+
+html {
+  transition: background-color 0.5s ease;
 }
 
 body {
@@ -29,7 +32,7 @@ body {
   gap: 1.5rem;
 }
 
-/* Background states */
+/* Background states — html:has() keeps safe-area bg in sync on iOS PWA */
 .bg-neutral {
   background-color: #1a1a2e;
   color: #e0e0e0;
@@ -44,6 +47,10 @@ body {
   background-color: #27ae60;
   color: #fff;
 }
+
+html:has(.bg-neutral) { background-color: #1a1a2e; }
+html:has(.bg-exercise) { background-color: #c0392b; }
+html:has(.bg-rest) { background-color: #27ae60; }
 
 /* Phase label */
 #phase-label {
