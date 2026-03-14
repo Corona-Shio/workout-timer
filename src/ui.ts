@@ -9,6 +9,9 @@ let timerDisplay: HTMLElement;
 let phaseLabel: HTMLElement;
 let setLabel: HTMLElement;
 let container: HTMLElement;
+let timerContent: HTMLElement;
+
+const OFFSET_KEY = 'timer-offset-y';
 
 export function initUI() {
   startBtn = $('start-btn') as HTMLButtonElement;
@@ -18,6 +21,9 @@ export function initUI() {
   phaseLabel = $('phase-label');
   setLabel = $('set-label');
   container = $('app');
+  timerContent = $('timer-content');
+
+  initDrag();
 }
 
 export function onStart(cb: () => void) {
@@ -48,6 +54,57 @@ function phaseText(phase: Phase, status: string): string {
 function bgClass(phase: Phase, status: string): string {
   if (status === 'idle' || status === 'finished') return 'bg-neutral';
   return phase === 'exercise' ? 'bg-exercise' : 'bg-rest';
+}
+
+function initDrag() {
+  let offsetY = Number(localStorage.getItem(OFFSET_KEY) || 0);
+  let startY = 0;
+  let startOffset = 0;
+  let dragging = false;
+  let lastTap = 0;
+
+  applyOffset(offsetY);
+
+  timerContent.addEventListener('pointerdown', (e) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    dragging = true;
+    startY = e.clientY;
+    startOffset = offsetY;
+    timerContent.classList.add('dragging');
+    timerContent.setPointerCapture(e.pointerId);
+  });
+
+  timerContent.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const maxOffset = window.innerHeight * 0.4;
+    offsetY = Math.max(-maxOffset, Math.min(maxOffset, startOffset + (e.clientY - startY)));
+    applyOffset(offsetY);
+  });
+
+  timerContent.addEventListener('pointerup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    timerContent.classList.remove('dragging');
+    localStorage.setItem(OFFSET_KEY, String(offsetY));
+
+    // Double-tap to reset
+    const now = Date.now();
+    if (now - lastTap < 300 && Math.abs(e.clientY - startY) < 5) {
+      offsetY = 0;
+      applyOffset(offsetY);
+      localStorage.setItem(OFFSET_KEY, '0');
+    }
+    lastTap = now;
+  });
+
+  timerContent.addEventListener('pointercancel', () => {
+    dragging = false;
+    timerContent.classList.remove('dragging');
+  });
+
+  function applyOffset(y: number) {
+    timerContent.style.transform = y === 0 ? '' : `translateY(${y}px)`;
+  }
 }
 
 export function render(state: TimerState) {
