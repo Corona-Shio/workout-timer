@@ -2,18 +2,14 @@ function formatGCalDate(date: Date): string {
   return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
-export function openGoogleCalendar() {
+export function openGoogleCalendar(startedAt: Date) {
   const now = new Date();
-  // Estimate workout duration: warmup(5) + 4x exercise(4) + 3x rest(3) + cooldown(5) = 35 min
-  const start = new Date(now.getTime() - 35 * 60 * 1000);
-
-  const dates = `${formatGCalDate(start)}/${formatGCalDate(now)}`;
+  const dates = `${formatGCalDate(startedAt)}/${formatGCalDate(now)}`;
   const url =
     'https://calendar.google.com/calendar/render' +
     '?action=TEMPLATE' +
-    '&text=' + encodeURIComponent('ノルウェー式 4x4 HIIT') +
-    '&dates=' + dates +
-    '&details=' + encodeURIComponent('ノルウェー式 4x4 HIIT 完了');
+    '&text=' + encodeURIComponent('ノルウェー式 HIIT') +
+    '&dates=' + dates;
 
   window.open(url, '_blank');
 }

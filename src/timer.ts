@@ -16,10 +16,10 @@ export interface PhaseChangeEvent {
   finished: boolean;
 }
 
-const WARMUP_DURATION = 5 * 60 * 1000;
-const EXERCISE_DURATION = 4 * 60 * 1000;
-const REST_DURATION = 3 * 60 * 1000;
-const COOLDOWN_DURATION = 5 * 60 * 1000;
+const WARMUP_DURATION = 3  * 1000;
+const EXERCISE_DURATION = 3  * 1000;
+const REST_DURATION = 3  * 1000;
+const COOLDOWN_DURATION = 3  * 1000;
 const TOTAL_SETS = 4;
 
 function phaseDuration(phase: Phase): number {
@@ -38,6 +38,10 @@ export class Timer {
   private phaseStartedAt = 0;
   private pausedRemaining = 0;
   private onPhaseChange: ((event: PhaseChangeEvent) => void) | null = null;
+
+  getStatus(): Status {
+    return this.status;
+  }
 
   setOnPhaseChange(cb: (event: PhaseChangeEvent) => void) {
     this.onPhaseChange = cb;

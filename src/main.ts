@@ -9,6 +9,7 @@ import './styles.css';
 const timer = new Timer();
 let worker: Worker | null = null;
 let lastBeepSecond = -1;
+let workoutStartedAt = new Date();
 
 timer.setOnPhaseChange((event) => {
   if (event.finished) {
@@ -53,6 +54,8 @@ function tick() {
 
 function startTimer() {
   resumeAudioContext();
+  const isNewWorkout = timer.getStatus() === 'idle' || timer.getStatus() === 'finished';
+  if (isNewWorkout) workoutStartedAt = new Date();
   timer.start();
   startSilenceLoop();
   acquireWakeLock();
@@ -109,5 +112,5 @@ onSkip(() => {
   timer.skip();
   tick();
 });
-onCalendar(() => openGoogleCalendar());
+onCalendar(() => openGoogleCalendar(workoutStartedAt));
 tick();
