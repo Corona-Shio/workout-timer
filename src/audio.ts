@@ -64,7 +64,8 @@ export function startSilenceLoop() {
     if (c.state === 'suspended') c.resume();
     const osc = c.createOscillator();
     const gain = c.createGain();
-    gain.gain.value = 0.001; // Nearly silent
+    gain.gain.value = 0.001;
+    osc.frequency.value = 1; // 1Hz — far below audible range
     osc.connect(gain);
     gain.connect(c.destination);
     osc.start(c.currentTime);

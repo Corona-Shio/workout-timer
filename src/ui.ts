@@ -5,6 +5,7 @@ const $ = (id: string) => document.getElementById(id)!;
 let startBtn: HTMLButtonElement;
 let pauseBtn: HTMLButtonElement;
 let resetBtn: HTMLButtonElement;
+let skipBtn: HTMLButtonElement;
 let timerDisplay: HTMLElement;
 let phaseLabel: HTMLElement;
 let setLabel: HTMLElement;
@@ -17,6 +18,7 @@ export function initUI() {
   startBtn = $('start-btn') as HTMLButtonElement;
   pauseBtn = $('pause-btn') as HTMLButtonElement;
   resetBtn = $('reset-btn') as HTMLButtonElement;
+  skipBtn = $('skip-btn') as HTMLButtonElement;
   timerDisplay = $('timer-display');
   phaseLabel = $('phase-label');
   setLabel = $('set-label');
@@ -38,6 +40,10 @@ export function onReset(cb: () => void) {
   resetBtn.addEventListener('click', cb);
 }
 
+export function onSkip(cb: () => void) {
+  skipBtn.addEventListener('click', cb);
+}
+
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
   const m = Math.floor(totalSeconds / 60);
@@ -48,12 +54,22 @@ function formatTime(ms: number): string {
 function phaseText(phase: Phase, status: string): string {
   if (status === 'idle') return 'READY';
   if (status === 'finished') return 'COMPLETE!';
-  return phase === 'exercise' ? 'EXERCISE' : 'REST';
+  switch (phase) {
+    case 'warmup': return 'WARM UP';
+    case 'exercise': return 'EXERCISE';
+    case 'rest': return 'REST';
+    case 'cooldown': return 'COOL DOWN';
+  }
 }
 
 function bgClass(phase: Phase, status: string): string {
   if (status === 'idle' || status === 'finished') return 'bg-neutral';
-  return phase === 'exercise' ? 'bg-exercise' : 'bg-rest';
+  switch (phase) {
+    case 'warmup': return 'bg-warmup';
+    case 'exercise': return 'bg-exercise';
+    case 'rest': return 'bg-rest';
+    case 'cooldown': return 'bg-cooldown';
+  }
 }
 
 function initDrag() {
@@ -110,7 +126,8 @@ function initDrag() {
 export function render(state: TimerState) {
   timerDisplay.textContent = formatTime(state.remainingMs);
   phaseLabel.textContent = phaseText(state.currentPhase, state.status);
-  setLabel.textContent = state.status === 'idle' || state.status === 'finished'
+  const isWorkout = state.currentPhase === 'exercise' || state.currentPhase === 'rest';
+  setLabel.textContent = (state.status === 'idle' || state.status === 'finished' || !isWorkout)
     ? '' : `Set ${state.currentSet} / 4`;
 
   // Background
@@ -120,9 +137,12 @@ export function render(state: TimerState) {
   const isIdle = state.status === 'idle' || state.status === 'finished';
   const isRunning = state.status === 'running';
   const isPaused = state.status === 'paused';
+  const isSkippable = (state.currentPhase === 'warmup' || state.currentPhase === 'cooldown')
+    && (isRunning || isPaused);
 
   startBtn.style.display = (isIdle || isPaused) ? '' : 'none';
   startBtn.textContent = isPaused ? 'RESUME' : 'START';
   pauseBtn.style.display = isRunning ? '' : 'none';
   resetBtn.style.display = (isRunning || isPaused) ? '' : 'none';
+  skipBtn.style.display = isSkippable ? '' : 'none';
 }

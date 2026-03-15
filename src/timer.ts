@@ -1,4 +1,4 @@
-export type Phase = 'exercise' | 'rest';
+export type Phase = 'warmup' | 'exercise' | 'rest' | 'cooldown';
 export type Status = 'idle' | 'running' | 'paused' | 'finished';
 
 export interface TimerState {
@@ -16,18 +16,25 @@ export interface PhaseChangeEvent {
   finished: boolean;
 }
 
+const WARMUP_DURATION = 5 * 60 * 1000;
 const EXERCISE_DURATION = 4 * 60 * 1000;
 const REST_DURATION = 3 * 60 * 1000;
+const COOLDOWN_DURATION = 5 * 60 * 1000;
 const TOTAL_SETS = 4;
 
 function phaseDuration(phase: Phase): number {
-  return phase === 'exercise' ? EXERCISE_DURATION : REST_DURATION;
+  switch (phase) {
+    case 'warmup': return WARMUP_DURATION;
+    case 'exercise': return EXERCISE_DURATION;
+    case 'rest': return REST_DURATION;
+    case 'cooldown': return COOLDOWN_DURATION;
+  }
 }
 
 export class Timer {
   private status: Status = 'idle';
   private currentSet = 1;
-  private currentPhase: Phase = 'exercise';
+  private currentPhase: Phase = 'warmup';
   private phaseStartedAt = 0;
   private pausedRemaining = 0;
   private onPhaseChange: ((event: PhaseChangeEvent) => void) | null = null;
@@ -39,7 +46,7 @@ export class Timer {
   start() {
     if (this.status === 'idle' || this.status === 'finished') {
       this.currentSet = 1;
-      this.currentPhase = 'exercise';
+      this.currentPhase = 'warmup';
       this.phaseStartedAt = Date.now();
       this.status = 'running';
     } else if (this.status === 'paused') {
@@ -57,9 +64,40 @@ export class Timer {
   reset() {
     this.status = 'idle';
     this.currentSet = 1;
-    this.currentPhase = 'exercise';
+    this.currentPhase = 'warmup';
     this.phaseStartedAt = 0;
     this.pausedRemaining = 0;
+  }
+
+  skip() {
+    if (this.status !== 'running' && this.status !== 'paused') return;
+    if (this.currentPhase !== 'warmup' && this.currentPhase !== 'cooldown') return;
+
+    const prevPhase = this.currentPhase;
+    const prevSet = this.currentSet;
+
+    if (this.currentPhase === 'warmup') {
+      this.currentPhase = 'exercise';
+      this.phaseStartedAt = Date.now();
+      this.pausedRemaining = phaseDuration(this.currentPhase);
+      this.onPhaseChange?.({
+        previousPhase: prevPhase,
+        previousSet: prevSet,
+        newPhase: this.currentPhase,
+        newSet: this.currentSet,
+        finished: false,
+      });
+    } else {
+      // cooldown skip -> finish
+      this.status = 'finished';
+      this.onPhaseChange?.({
+        previousPhase: prevPhase,
+        previousSet: prevSet,
+        newPhase: 'cooldown',
+        newSet: this.currentSet,
+        finished: true,
+      });
+    }
   }
 
   tick(): TimerState {
@@ -72,7 +110,7 @@ export class Timer {
       currentPhase: this.currentPhase,
       remainingMs: this.status === 'paused' ? this.pausedRemaining :
                    this.status === 'running' ? this.getRemainingMs() :
-                   this.status === 'idle' ? EXERCISE_DURATION : 0,
+                   this.status === 'idle' ? WARMUP_DURATION : 0,
     };
   }
 
@@ -86,27 +124,36 @@ export class Timer {
       const prevPhase = this.currentPhase;
       const prevSet = this.currentSet;
 
-      if (this.currentPhase === 'exercise') {
-        if (this.currentSet >= TOTAL_SETS) {
-          // Last set exercise done — finished (no rest after last set)
-          this.status = 'finished';
-          this.onPhaseChange?.({
-            previousPhase: prevPhase,
-            previousSet: prevSet,
-            newPhase: 'exercise',
-            newSet: this.currentSet,
-            finished: true,
-          });
-          return;
-        }
-        // Move to rest
-        this.currentPhase = 'rest';
+      if (this.currentPhase === 'warmup') {
+        // Warmup done, move to first exercise
+        this.currentPhase = 'exercise';
         this.phaseStartedAt += phaseDuration(prevPhase);
-      } else {
+      } else if (this.currentPhase === 'exercise') {
+        if (this.currentSet >= TOTAL_SETS) {
+          // Last set exercise done — move to cooldown
+          this.currentPhase = 'cooldown';
+          this.phaseStartedAt += phaseDuration(prevPhase);
+        } else {
+          // Move to rest
+          this.currentPhase = 'rest';
+          this.phaseStartedAt += phaseDuration(prevPhase);
+        }
+      } else if (this.currentPhase === 'rest') {
         // Rest done, move to next set's exercise
         this.currentPhase = 'exercise';
         this.currentSet++;
         this.phaseStartedAt += phaseDuration(prevPhase);
+      } else {
+        // Cooldown done — finished
+        this.status = 'finished';
+        this.onPhaseChange?.({
+          previousPhase: prevPhase,
+          previousSet: prevSet,
+          newPhase: 'cooldown',
+          newSet: this.currentSet,
+          finished: true,
+        });
+        return;
       }
 
       this.onPhaseChange?.({

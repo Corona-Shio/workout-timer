@@ -50,9 +50,21 @@ body {
   color: #fff;
 }
 
+.bg-warmup {
+  background-color: #e67e22;
+  color: #fff;
+}
+
+.bg-cooldown {
+  background-color: #2980b9;
+  color: #fff;
+}
+
 html:has(.bg-neutral) { background-color: #1a1a2e; }
 html:has(.bg-exercise) { background-color: #c0392b; }
 html:has(.bg-rest) { background-color: #27ae60; }
+html:has(.bg-warmup) { background-color: #e67e22; }
+html:has(.bg-cooldown) { background-color: #2980b9; }
 
 /* Timer content (draggable) */
 #timer-content {
@@ -125,7 +137,8 @@ html:has(.bg-rest) { background-color: #27ae60; }
   background: rgba(255, 255, 255, 0.25);
 }
 
-#reset-btn {
+#reset-btn,
+#skip-btn {
   background: rgba(0, 0, 0, 0.15);
   border-color: rgba(255, 255, 255, 0.4);
 }

@@ -1,5 +1,5 @@
 import { Timer } from './timer';
-import { initUI, onStart, onPause, onReset, render } from './ui';
+import { initUI, onStart, onPause, onReset, onSkip, render } from './ui';
 import { resumeAudioContext, startSilenceLoop, stopSilenceLoop, playBeep, playPhaseChange, playFinish } from './audio';
 import { acquireWakeLock, releaseWakeLock } from './wake-lock';
 import { requestPermission, notify } from './notifications';
@@ -16,8 +16,20 @@ timer.setOnPhaseChange((event) => {
     stopTimer();
   } else {
     playPhaseChange();
-    const label = event.newPhase === 'exercise' ? 'Exercise' : 'Rest';
-    notify(`${label} — Set ${event.newSet}`, event.newPhase === 'exercise' ? 'Go hard!' : 'Take it easy');
+    const labels: Record<string, string> = {
+      warmup: 'Warm Up',
+      exercise: 'Exercise',
+      rest: 'Rest',
+      cooldown: 'Cool Down',
+    };
+    const label = labels[event.newPhase];
+    const isWorkout = event.newPhase === 'exercise' || event.newPhase === 'rest';
+    const title = isWorkout ? `${label} — Set ${event.newSet}` : label;
+    const body = event.newPhase === 'exercise' ? 'Go hard!'
+      : event.newPhase === 'rest' ? 'Take it easy'
+      : event.newPhase === 'warmup' ? 'Get ready!'
+      : 'Wind down';
+    notify(title, body);
   }
 });
 
@@ -25,8 +37,9 @@ function tick() {
   const state = timer.tick();
   render(state);
 
-  // Countdown beeps for last 3 seconds
-  if (state.status === 'running') {
+  // Countdown beeps for last 3 seconds (exercise/rest only)
+  if (state.status === 'running'
+    && (state.currentPhase === 'exercise' || state.currentPhase === 'rest')) {
     const secondsLeft = Math.ceil(state.remainingMs / 1000);
     if (secondsLeft <= 3 && secondsLeft > 0 && secondsLeft !== lastBeepSecond) {
       lastBeepSecond = secondsLeft;
@@ -92,4 +105,8 @@ onStart(() => {
 });
 onPause(pauseTimer);
 onReset(resetTimer);
+onSkip(() => {
+  timer.skip();
+  tick();
+});
 tick();
