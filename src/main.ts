@@ -37,9 +37,8 @@ function tick() {
   const state = timer.tick();
   render(state);
 
-  // Countdown beeps for last 3 seconds (exercise/rest only)
-  if (state.status === 'running'
-    && (state.currentPhase === 'exercise' || state.currentPhase === 'rest')) {
+  // Countdown beeps for last 3 seconds
+  if (state.status === 'running') {
     const secondsLeft = Math.ceil(state.remainingMs / 1000);
     if (secondsLeft <= 3 && secondsLeft > 0 && secondsLeft !== lastBeepSecond) {
       lastBeepSecond = secondsLeft;
