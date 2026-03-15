@@ -10,6 +10,7 @@ let timerDisplay: HTMLElement;
 let phaseLabel: HTMLElement;
 let setLabel: HTMLElement;
 let container: HTMLElement;
+let calendarBtn: HTMLButtonElement;
 let timerContent: HTMLElement;
 
 const OFFSET_KEY = 'timer-offset-y';
@@ -22,6 +23,7 @@ export function initUI() {
   timerDisplay = $('timer-display');
   phaseLabel = $('phase-label');
   setLabel = $('set-label');
+  calendarBtn = $('calendar-btn') as HTMLButtonElement;
   container = $('app');
   timerContent = $('timer-content');
 
@@ -42,6 +44,10 @@ export function onReset(cb: () => void) {
 
 export function onSkip(cb: () => void) {
   skipBtn.addEventListener('click', cb);
+}
+
+export function onCalendar(cb: () => void) {
+  calendarBtn.addEventListener('click', cb);
 }
 
 function formatTime(ms: number): string {
@@ -145,4 +151,5 @@ export function render(state: TimerState) {
   pauseBtn.style.display = isRunning ? '' : 'none';
   resetBtn.style.display = (isRunning || isPaused) ? '' : 'none';
   skipBtn.style.display = isSkippable ? '' : 'none';
+  calendarBtn.style.display = isIdle ? '' : 'none';
 }

@@ -1,5 +1,6 @@
 import { Timer } from './timer';
-import { initUI, onStart, onPause, onReset, onSkip, render } from './ui';
+import { initUI, onStart, onPause, onReset, onSkip, onCalendar, render } from './ui';
+import { openGoogleCalendar } from './calendar';
 import { resumeAudioContext, startSilenceLoop, stopSilenceLoop, playBeep, playPhaseChange, playFinish } from './audio';
 import { acquireWakeLock, releaseWakeLock } from './wake-lock';
 import { requestPermission, notify } from './notifications';
@@ -108,4 +109,5 @@ onSkip(() => {
   timer.skip();
   tick();
 });
+onCalendar(() => openGoogleCalendar());
 tick();
