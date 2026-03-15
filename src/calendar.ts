@@ -11,9 +11,9 @@ export function openGoogleCalendar() {
   const url =
     'https://calendar.google.com/calendar/render' +
     '?action=TEMPLATE' +
-    '&text=' + encodeURIComponent('Norwegian 4x4 HIIT') +
+    '&text=' + encodeURIComponent('ノルウェー式 4x4 HIIT') +
     '&dates=' + dates +
-    '&details=' + encodeURIComponent('Completed Norwegian 4x4 interval training.');
+    '&details=' + encodeURIComponent('ノルウェー式 4x4 HIIT 完了');
 
   window.open(url, '_blank');
 }

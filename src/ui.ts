@@ -151,5 +151,5 @@ export function render(state: TimerState) {
   pauseBtn.style.display = isRunning ? '' : 'none';
   resetBtn.style.display = (isRunning || isPaused) ? '' : 'none';
   skipBtn.style.display = isSkippable ? '' : 'none';
-  calendarBtn.style.display = isIdle ? '' : 'none';
+  calendarBtn.style.display = state.status === 'finished' ? '' : 'none';
 }

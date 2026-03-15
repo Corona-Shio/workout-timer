@@ -1,4 +1,4 @@
-// Service Worker for Norwegian HIIT Timer
+// Service Worker for ノルウェー式 HIIT Timer
 // Handles notification display and click events
 
 self.addEventListener('install', (event) => {
